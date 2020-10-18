@@ -1,17 +1,11 @@
-module Punycode exposing (decode)
+module Punycode exposing (decode, decodeIdn)
 
 {-| [Punycode](https://en.wikipedia.org/wiki/Punycode) is a Unicode encoding used for [internationalized domain names](https://en.wikipedia.org/wiki/Internationalized_domain_name).
-
-So far we have a decoder - if you'd like an encoder as well, please open an issue on GitHub!
-
-    import Punycode
-
-    Punycode.decode "bcher-kva" == "bücher"
 
 
 # Decoding
 
-@docs decode
+@docs decode, decodeIdn
 
 -}
 
@@ -19,7 +13,20 @@ import Helpers
 import String.Extra
 
 
+idnPrefix =
+    "xn--"
+
+
+idnPrefixLen =
+    String.length idnPrefix
+
+
 {-| Decodes a Punycode-encoded string into Unicode.
+
+    import Punycode
+
+    Punycode.decode "bcher-kva" == "bücher"
+
 -}
 decode : String -> String
 decode inputStr =
@@ -38,3 +45,24 @@ decode inputStr =
             String.dropLeft extensionStart <| String.toUpper inputStr
     in
     Helpers.insertionSort base extended
+
+
+decodeIdnPart : String -> String
+decodeIdnPart idnPart =
+    if String.startsWith idnPrefix idnPart then
+        String.dropLeft idnPrefixLen idnPart |> decode
+
+    else
+        idnPart
+
+
+{-| Decodes an internationalized domain name into Unicode.
+
+    import Punycode
+
+    Punycode.decodeIdn "www.xn--bcher-kva.example" == "www.bücher.example"
+
+-}
+decodeIdn : String -> String
+decodeIdn =
+    String.split "." >> List.map decodeIdnPart >> String.join "."

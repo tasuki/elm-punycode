@@ -55,3 +55,10 @@ canDecode testCase =
 
 decodeTest =
     cases |> List.map canDecode |> describe "decode"
+
+
+decodeIdnTest =
+    describe "decodeIdn"
+        [ test "Can decode IDN" <|
+            \_ -> Expect.equal (decodeIdn "www.xn--bcher-kva.example") "www.bücher.example"
+        ]
