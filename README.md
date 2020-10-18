@@ -23,3 +23,15 @@ Run tests locally with:
 ```bash
 elm-test
 ```
+
+## Release
+
+Make changes, then:
+
+```bash
+elm bump
+git commit
+git tag {version}
+git push --tags
+elm release
+```
