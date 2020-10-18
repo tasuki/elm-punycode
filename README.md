@@ -15,7 +15,7 @@ elm install tasuki/elm-punycode
 ```elm
 import Punycode
 
-Punycode.decode "bcher-kva" -- results in "bücher"
+Punycode.decode "bcher-kva" == "bücher"
 ```
 
 ## Develop
