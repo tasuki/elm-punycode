@@ -20,6 +20,8 @@ Punycode.decode "bcher-kva" == "bücher"
 
 ## Develop
 
+[![Build Status](https://travis-ci.org/tasuki/elm-punycode.svg?branch=master)](https://travis-ci.org/tasuki/elm-punycode)
+
 Run tests with:
 
 ```bash
