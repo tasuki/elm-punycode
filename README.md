@@ -16,7 +16,7 @@ See the [module documentation for info on usage](https://package.elm-lang.org/pa
 
 ## Develop
 
-[![Build Status](https://travis-ci.org/tasuki/elm-punycode.svg?branch=master)](https://travis-ci.org/tasuki/elm-punycode)
+[![CI](https://github.com/tasuki/elm-punycode/workflows/CI/badge.svg?branch=master)](https://github.com/tasuki/elm-punycode/actions?query=workflow:CI)
 
 Run tests locally with:
 
