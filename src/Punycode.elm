@@ -23,6 +23,8 @@ idnPrefixLen =
 
 {-| Decodes a Punycode-encoded string into Unicode.
 
+Attempts to follow [RFC 3492](https://www.rfc-editor.org/rfc/rfc3492).
+
     import Punycode
 
     Punycode.decode "bcher-kva" == "bücher"
@@ -57,6 +59,9 @@ decodeIdnPart idnPart =
 
 
 {-| Decodes an internationalized domain name into Unicode.
+
+Attempts to follow [RFC 3492](https://www.rfc-editor.org/rfc/rfc3492)
+using the `xn--` ACE prefix for each encoded part.
 
     import Punycode
 
