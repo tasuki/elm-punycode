@@ -1,8 +1,6 @@
-# A Punycode decoder for Elm
+# A Punycode encoder/decoder for Elm
 
 [Punycode](https://en.wikipedia.org/wiki/Punycode) is a Unicode encoding used for [internationalized domain names](https://en.wikipedia.org/wiki/Internationalized_domain_name).
-
-So far we have a decoder - if you'd like an encoder, [please open an issue](https://github.com/tasuki/elm-punycode/issues)!
 
 ## Install
 
@@ -33,5 +31,5 @@ elm bump
 git commit
 git tag {version}
 git push --tags
-elm release
+elm publish
 ```
