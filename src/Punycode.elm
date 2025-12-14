@@ -78,6 +78,15 @@ decodeIdn =
     String.split "." >> List.map decodeIdnPart >> String.join "."
 
 
+{-| Encodes a Unicode string into Punycode.
+
+Attempts to follow [RFC 3492](https://www.rfc-editor.org/rfc/rfc3492).
+
+    import Punycode
+
+    Punycode.encode "bücher" == "bcher-kva"
+
+-}
 encode : String -> String
 encode input =
     let
@@ -120,6 +129,16 @@ encodeIdnPart idnPart =
         idnPrefix ++ encode idnPart
 
 
+{-| Encodes an internationalized domain name into Punycode.
+
+Attempts to follow [RFC 3492](https://www.rfc-editor.org/rfc/rfc3492)
+using the `xn--` ACE prefix for each encoded part.
+
+    import Punycode
+
+    Punycode.encodeIdn "www.bücher.example" == "www.xn--bcher-kva.example"
+
+-}
 encodeIdn : String -> String
 encodeIdn =
     String.split "." >> List.map encodeIdnPart >> String.join "."
