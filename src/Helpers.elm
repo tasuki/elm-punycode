@@ -247,6 +247,28 @@ runEncoder codePoints =
         inputLength =
             List.length codePoints
 
+        processCodePoints n_ initialState =
+            List.foldl
+                (\cv acc ->
+                    if cv < n_ then
+                        { acc | d = acc.d + 1 }
+
+                    else if cv == n_ then
+                        let
+                            encoded =
+                                encodeGeneralizedNumber acc.d acc.b
+
+                            newBias =
+                                adapt acc.d (acc.cH == h) (acc.cH + 1)
+                        in
+                        { d = 0, b = newBias, cH = acc.cH + 1, acc = acc.acc ++ encoded }
+
+                    else
+                        acc
+                )
+                initialState
+                codePoints
+
         mainLoop n delta bias currentH output =
             if currentH >= inputLength then
                 output
@@ -270,27 +292,11 @@ runEncoder codePoints =
                         n_ =
                             m
 
+                        initialState =
+                            { d = delta_, b = bias, cH = currentH, acc = "" }
+
                         result =
-                            List.foldl
-                                (\cv acc ->
-                                    if cv < n_ then
-                                        { acc | d = acc.d + 1 }
-
-                                    else if cv == n_ then
-                                        let
-                                            encoded =
-                                                encodeGeneralizedNumber acc.d acc.b
-
-                                            newBias =
-                                                adapt acc.d (acc.cH == h) (acc.cH + 1)
-                                        in
-                                        { d = 0, b = newBias, cH = acc.cH + 1, acc = acc.acc ++ encoded }
-
-                                    else
-                                        acc
-                                )
-                                { d = delta_, b = bias, cH = currentH, acc = "" }
-                                codePoints
+                            processCodePoints n_ initialState
                     in
                     mainLoop (n_ + 1) (result.d + 1) result.b result.cH (output ++ result.acc)
     in
