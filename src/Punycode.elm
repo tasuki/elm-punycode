@@ -1,4 +1,4 @@
-module Punycode exposing (decode, decodeIdn)
+module Punycode exposing (decode, decodeIdn, encode, encodeIdn)
 
 {-| [Punycode](https://en.wikipedia.org/wiki/Punycode) is a Unicode encoding used for [internationalized domain names](https://en.wikipedia.org/wiki/Internationalized_domain_name).
 
@@ -6,6 +6,11 @@ module Punycode exposing (decode, decodeIdn)
 # Decoding
 
 @docs decode, decodeIdn
+
+
+# Encoding
+
+@docs encode, encodeIdn
 
 -}
 
@@ -71,3 +76,50 @@ using the `xn--` ACE prefix for each encoded part.
 decodeIdn : String -> String
 decodeIdn =
     String.split "." >> List.map decodeIdnPart >> String.join "."
+
+
+encode : String -> String
+encode input =
+    let
+        codePoints =
+            String.toList input |> List.map Char.toCode
+
+        ( basicCodePoints, nonBasicCodePoints ) =
+            codePoints |> List.partition (\cp -> cp < 128)
+
+        base =
+            basicCodePoints |> List.map Char.fromCode |> String.fromList
+    in
+    if List.isEmpty nonBasicCodePoints then
+        if String.isEmpty base then
+            ""
+        else
+            base ++ "-"
+
+    else
+        let
+            encodedPart =
+                Helpers.runEncoder codePoints
+        in
+        if String.isEmpty base then
+            encodedPart
+        else
+            base ++ "-" ++ encodedPart
+
+
+encodeIdnPart : String -> String
+encodeIdnPart idnPart =
+    let
+        ( ascii, nonAscii ) =
+            String.toList idnPart |> List.partition (\c -> Char.toCode c < 128)
+    in
+    if List.isEmpty nonAscii then
+        idnPart
+
+    else
+        idnPrefix ++ encode idnPart
+
+
+encodeIdn : String -> String
+encodeIdn =
+    String.split "." >> List.map encodeIdnPart >> String.join "."

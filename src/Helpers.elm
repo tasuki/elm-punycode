@@ -1,4 +1,9 @@
-module Helpers exposing (..)
+module Helpers exposing
+    ( runEncoder
+    , insertionSort
+    , decodeGeneralizedNumber
+    , GeneralizedNumberResult
+    )
 
 
 tmin =
@@ -179,3 +184,120 @@ insertionSort base extended =
             -1
             72
             0
+
+
+fromDigit : Int -> Char
+fromDigit d =
+    let
+        fromCode c =
+            Char.fromCode c
+    in
+    if d >= 0 && d <= 25 then
+        fromCode (d + 97)
+
+    else if d >= 26 && d <= 35 then
+        fromCode (d - 26 + 48)
+
+    else
+        -- This should not be reached in Punycode
+        '\u{0000}'
+
+
+encodeGeneralizedNumber : Int -> Int -> String
+encodeGeneralizedNumber q bias =
+    let
+        loop k currentQ acc =
+            let
+                t =
+                    if k <= bias then
+                        tmin
+                    else if k >= bias + tmax then
+                        tmax
+                    else
+                        k - bias
+            in
+            if currentQ < t then
+                acc ++ String.fromList [ fromDigit currentQ ]
+
+            else
+                let
+                    qMinusT =
+                        currentQ - t
+
+                    baseMinusT =
+                        baseConstant - t
+
+                    newAcc =
+                        acc ++ String.fromList [ fromDigit (t + modBy baseMinusT qMinusT) ]
+
+                    newQ =
+                        qMinusT // baseMinusT
+                in
+                loop (k + baseConstant) newQ newAcc
+    in
+    loop baseConstant q ""
+
+
+runEncoder : List Int -> String
+runEncoder codePoints =
+    let
+        h =
+            codePoints |> List.filter (\cp -> cp < 128) |> List.length
+
+        inputLength =
+            List.length codePoints
+
+        processCodePoints n_ initialState =
+            List.foldl
+                (\cv acc ->
+                    if cv < n_ then
+                        { acc | d = acc.d + 1 }
+
+                    else if cv == n_ then
+                        let
+                            encoded =
+                                encodeGeneralizedNumber acc.d acc.b
+
+                            newBias =
+                                adapt acc.d (acc.cH == h) (acc.cH + 1)
+                        in
+                        { d = 0, b = newBias, cH = acc.cH + 1, acc = acc.acc ++ encoded }
+
+                    else
+                        acc
+                )
+                initialState
+                codePoints
+
+        mainLoop n delta bias currentH output =
+            if currentH >= inputLength then
+                output
+
+            else
+                let
+                    m =
+                        codePoints
+                            |> List.filter (\cp -> cp >= n)
+                            |> List.minimum
+                            |> Maybe.withDefault -1
+                in
+                if m == -1 then
+                    output
+
+                else
+                    let
+                        delta_ =
+                            delta + (m - n) * (currentH + 1)
+
+                        n_ =
+                            m
+
+                        initialState =
+                            { d = delta_, b = bias, cH = currentH, acc = "" }
+
+                        result =
+                            processCodePoints n_ initialState
+                    in
+                    mainLoop (n_ + 1) (result.d + 1) result.b result.cH (output ++ result.acc)
+    in
+    mainLoop initial_n 0 initial_bias h ""
