@@ -62,3 +62,22 @@ decodeIdnTest =
         [ test "Can decode IDN" <|
             \_ -> Expect.equal (decodeIdn "www.xn--bcher-kva.example") "www.bücher.example"
         ]
+
+
+canEncode : Case -> Test
+canEncode testCase =
+    case testCase of
+        ( decoded, encoded, comment ) ->
+            test ("Can encode " ++ decoded) <|
+                \_ -> Expect.equal (encode decoded) encoded
+
+
+encodeTest =
+    cases |> List.map canEncode |> describe "encode"
+
+
+encodeIdnTest =
+    describe "encodeIdn"
+        [ test "Can encode IDN" <|
+            \_ -> Expect.equal (encodeIdn "www.bücher.example") "www.xn--bcher-kva.example"
+        ]
